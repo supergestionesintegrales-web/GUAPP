@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" fill="none">
+  <defs>
+    <linearGradient id="guappFaviconBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1d4ed8"/>
+      <stop offset="50%" stop-color="#0ea5e9"/>
+      <stop offset="100%" stop-color="#22d3ee"/>
+    </linearGradient>
+    <linearGradient id="guappFaviconMark" x1="20%" y1="20%" x2="80%" y2="80%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#bfdbfe"/>
+    </linearGradient>
+  </defs>
+  <rect width="256" height="256" rx="56" fill="url(#guappFaviconBg)"/>
+  <circle cx="128" cy="110" r="72" fill="url(#guappFaviconMark)"/>
+  <path d="M 70 90 Q 50 70 70 50 Q 90 40 110 50" fill="url(#guappFaviconMark)"/>
+  <path d="M 145 160 L 195 220" stroke="url(#guappFaviconMark)" stroke-width="32" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
