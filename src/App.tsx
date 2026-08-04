@@ -8,6 +8,8 @@ import { NewsSection } from './components/NewsSection';
 import { FloatingTabsPanel } from './components/FloatingTabsPanel';
 import { ProgramTabViewer } from './components/ProgramTabViewer';
 import { StructureConfigModal } from './components/StructureConfigModal';
+import { resolveAccessRoleLocal } from './config/auth';
+import { fetchSistemaJson } from './services/fetchSistemaData';
 
 export default function App() {
   const [role, setRole] = useState<UserRole>(null);
@@ -62,19 +64,13 @@ export default function App() {
   const fetchData = async () => {
     setIsSyncing(true);
     try {
-      const [modRes, newsRes] = await Promise.all([
-        fetch('/api/gas/getDashboardModules'),
-        fetch('/api/gas/getNews')
+      const [modData, nData] = await Promise.all([
+        fetchSistemaJson<Modulo[]>('/api/gas/getDashboardModules', '/data/modules.json'),
+        fetchSistemaJson<Noticia[]>('/api/gas/getNews', '/data/news.json'),
       ]);
 
-      if (modRes.ok) {
-        const modData = await modRes.json();
-        setModules(modData);
-      }
-      if (newsRes.ok) {
-        const nData = await newsRes.json();
-        setNews(nData);
-      }
+      if (modData) setModules(modData);
+      if (nData) setNews(nData);
     } catch (e) {
       console.warn('Error fetching server data:', e);
     } finally {
@@ -92,27 +88,55 @@ export default function App() {
 
     if (selectedRole === 'ADMIN') {
       setIsLoginLoading(true);
+      const trimmedPin = pin?.trim() || '';
+
+      const applyRole = (role: 'ADMIN' | 'PUBLISHER') => {
+        setRole(role);
+        setAdminPin(trimmedPin);
+        showToast(role === 'ADMIN' ? '🔑 Modo Administrador activado' : '📢 Acceso de publicación activado');
+      };
+
       try {
         const res = await fetch('/api/gas/validateAdminPIN', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ pin })
+          body: JSON.stringify({ pin: trimmedPin })
         });
-        const data = await res.json();
 
-        if (data.isValid && data.role === 'ADMIN') {
-          setRole('ADMIN');
-          setAdminPin(pin?.trim() || null);
-          showToast('🔑 Modo Administrador activado');
-        } else if (data.isValid && data.role === 'PUBLISHER') {
-          setRole('PUBLISHER');
-          setAdminPin(pin?.trim() || null);
-          showToast('📢 Acceso de publicación activado');
+        let data: { isValid?: boolean; role?: 'ADMIN' | 'PUBLISHER' | null } | null = null;
+        try {
+          data = await res.json();
+        } catch {
+          const localRole = resolveAccessRoleLocal(trimmedPin);
+          if (localRole) {
+            applyRole(localRole);
+            return;
+          }
+          setLoginError('No se pudo conectar con el servidor. Verifica el despliegue del backend.');
+          return;
+        }
+
+        if (data?.isValid && data.role === 'ADMIN') {
+          applyRole('ADMIN');
+        } else if (data?.isValid && data.role === 'PUBLISHER') {
+          applyRole('PUBLISHER');
+        } else if (!res.ok) {
+          const localRole = resolveAccessRoleLocal(trimmedPin);
+          if (localRole) {
+            applyRole(localRole);
+          } else {
+            setLoginError('No se pudo conectar con el servidor. Verifica el despliegue del backend.');
+          }
         } else {
           setLoginError('PIN incorrecto o no autorizado.');
         }
-      } catch (e) {
-        setLoginError('Error validando el PIN.');
+      } catch {
+        const localRole = resolveAccessRoleLocal(trimmedPin);
+        if (localRole) {
+          applyRole(localRole);
+        } else {
+          setLoginError('No se pudo conectar con el servidor. Verifica el despliegue del backend.');
+        }
       } finally {
         setIsLoginLoading(false);
       }
@@ -193,11 +217,15 @@ export default function App() {
         body: JSON.stringify({ modules: newModules, pin: adminPin })
       });
       if (res.ok) {
+        // Actualizar estado local de inmediato para que el usuario vea el cambio
         setModules(newModules);
-        showToast('✅ Estructura de módulos guardada correctamente');
+        showToast('✅ Módulos guardados — el sistema se actualizará en ~1 min');
+      } else {
+        const data = await res.json().catch(() => ({})) as { error?: string };
+        showToast(`⚠️ ${data.error || 'Error guardando módulos'}`);
       }
     } catch (e) {
-      showToast('Error guardando módulos');
+      showToast('⚠️ Error de red al guardar módulos');
     }
   };
 
@@ -289,10 +317,13 @@ export default function App() {
 
       if (saveRes.ok) {
         setNews(updatedNewsList);
-        showToast('✅ Noticia publicada con éxito');
+        showToast('✅ Noticia publicada — visible para todos en ~1 min');
+      } else {
+        const data = await saveRes.json().catch(() => ({})) as { error?: string };
+        showToast(`⚠️ ${data.error || 'Error publicando noticia'}`);
       }
     } catch (e) {
-      showToast('Error publicando noticia');
+      showToast('⚠️ Error de red al publicar noticia');
     }
   };
 
@@ -312,9 +343,12 @@ export default function App() {
       if (res.ok) {
         setNews(nextNews);
         showToast('🗑️ Noticia eliminada');
+      } else {
+        const data = await res.json().catch(() => ({})) as { error?: string };
+        showToast(`⚠️ ${data.error || 'Error eliminando noticia'}`);
       }
     } catch (e) {
-      showToast('Error eliminando noticia');
+      showToast('⚠️ Error de red al eliminar noticia');
     }
   };
 

@@ -1,0 +1,164 @@
+[
+  {
+    "id": "mod1",
+    "nombre": "Servicios Ciudadanos",
+    "orden": 1,
+    "submodulos": [
+      {
+        "id": "s1",
+        "moduloId": "mod1",
+        "nombre": "Peticiones y Quejas",
+        "desc": "Radica tus PQRS de forma rápida y realiza seguimiento",
+        "url": "https://example.com/pqrs",
+        "color": "#3b82f6",
+        "icono": "file-text",
+        "orden": 1,
+        "sublinks": [
+          {
+            "id": "l1",
+            "nombre": "Radicar nueva PQRS",
+            "url": "https://example.com/pqrs/radicar",
+            "orden": 1
+          },
+          {
+            "id": "l2",
+            "nombre": "Consultar estado de solicitud",
+            "url": "https://example.com/pqrs/estado",
+            "orden": 2
+          }
+        ]
+      },
+      {
+        "id": "s2",
+        "moduloId": "mod1",
+        "nombre": "Consulta de Impuestos",
+        "desc": "Verifica tu estado de cuenta predial e ICA",
+        "url": "https://example.com/impuestos",
+        "color": "#10b981",
+        "icono": "dollar-sign",
+        "orden": 2,
+        "sublinks": [
+          {
+            "id": "l3",
+            "nombre": "Impuesto Predial Unificado",
+            "url": "https://example.com/impuestos/predial",
+            "orden": 1
+          },
+          {
+            "id": "l4",
+            "nombre": "Industria y Comercio (ICA)",
+            "url": "https://example.com/impuestos/ica",
+            "orden": 2
+          }
+        ]
+      },
+      {
+        "id": "s3",
+        "moduloId": "mod1",
+        "nombre": "Sistema SASRA - Solicitudes y Respuestas",
+        "desc": "Sistema de Atención, Solicitudes, Respuestas y Acompañamiento Institucional",
+        "url": "https://example.com/sasra",
+        "color": "#0284c7",
+        "icono": "shield-check",
+        "orden": 3,
+        "sublinks": [
+          {
+            "id": "sasra_1",
+            "nombre": "Radicación de Solicitud SASRA",
+            "url": "https://example.com/sasra/radicar",
+            "orden": 1
+          },
+          {
+            "id": "sasra_2",
+            "nombre": "Consulta de Estado de Solicitud SASRA",
+            "url": "https://example.com/sasra/estado",
+            "orden": 2
+          },
+          {
+            "id": "sasra_3",
+            "nombre": "Guía del Usuario y Acompañamiento SASRA",
+            "url": "https://example.com/sasra/guia",
+            "orden": 3
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "mod2",
+    "nombre": "Gestión Institucional",
+    "orden": 2,
+    "submodulos": [
+      {
+        "id": "g1",
+        "moduloId": "mod2",
+        "nombre": "Recursos Humanos",
+        "desc": "Sistemas internos de personal, nómina y certificaciones",
+        "url": "",
+        "color": "#8b5cf6",
+        "icono": "users",
+        "orden": 1,
+        "sublinks": [
+          {
+            "id": "g1-1",
+            "nombre": "Nómina Electrónica",
+            "url": "https://example.com/nomina",
+            "orden": 1
+          },
+          {
+            "id": "g1-2",
+            "nombre": "Permisos y Ausentismos",
+            "url": "https://example.com/permisos",
+            "orden": 2
+          },
+          {
+            "id": "g1-3",
+            "nombre": "Generar Certificado Laboral",
+            "url": "https://example.com/certs",
+            "orden": 3
+          }
+        ]
+      },
+      {
+        "id": "g2",
+        "moduloId": "mod2",
+        "nombre": "Gestión Documental",
+        "desc": "Acceso al archivo digital y correspondencia oficial",
+        "url": "https://example.com/orfeo",
+        "color": "#ec4899",
+        "icono": "folder-archive",
+        "orden": 2,
+        "sublinks": []
+      }
+    ]
+  },
+  {
+    "id": "mod3",
+    "nombre": "Transparencia y Control",
+    "orden": 3,
+    "submodulos": [
+      {
+        "id": "t1",
+        "moduloId": "mod3",
+        "nombre": "Rendición de Cuentas",
+        "desc": "Informes de gestión, presupuestos e indicadores",
+        "url": "https://example.com/transparencia",
+        "color": "#f59e0b",
+        "icono": "pie-chart",
+        "orden": 1,
+        "sublinks": []
+      },
+      {
+        "id": "t2",
+        "moduloId": "mod3",
+        "nombre": "Contratación Pública",
+        "desc": "Procesos en SECOP II y licitaciones abiertas",
+        "url": "https://example.com/secop",
+        "color": "#06b6d4",
+        "icono": "briefcase",
+        "orden": 2,
+        "sublinks": []
+      }
+    ]
+  }
+]
