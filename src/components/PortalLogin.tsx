@@ -141,9 +141,10 @@ export const PortalLogin: React.FC<PortalLoginProps> = ({
                     {isAdminOpen ? 'Cerrar' : 'Ingresar'}
                   </span>
                 </div>
-                <p className="text-[11px] text-slate-500 dark:text-gray-400 mb-1.5">Acceso administrativo y configuración del portal</p>
+                <p className="text-[11px] text-slate-500 dark:text-gray-400 mb-1.5">Acceso administrativo, publicación o configuración del portal</p>
                 <div className="flex flex-wrap gap-1.5">
                   <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-100 dark:bg-[#1F1F1F] text-rose-700 dark:text-rose-300 border border-rose-500/20">Gestionar Módulos</span>
+                  <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-100 dark:bg-[#1F1F1F] text-blue-700 dark:text-sky-300 border border-blue-500/20">Publicar Noticias</span>
                   <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-slate-100 dark:bg-[#1F1F1F] text-rose-700 dark:text-rose-300 border border-rose-500/20">Protegido por PIN</span>
                 </div>
               </div>

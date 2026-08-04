@@ -45,4 +45,4 @@ export interface OpenTab {
   linkData?: Partial<Submodulo>;
 }
 
-export type UserRole = 'PUBLIC' | 'ADMIN' | null;
+export type UserRole = 'PUBLIC' | 'ADMIN' | 'PUBLISHER' | null;

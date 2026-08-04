@@ -35,6 +35,8 @@ const motivationalQuotes = [
 ];
 
 export const NewsSection: React.FC<NewsSectionProps> = ({ news, role, onSaveNews, onDeleteNews }) => {
+  const isAdmin = role === 'ADMIN';
+  const canPublish = role === 'ADMIN' || role === 'PUBLISHER';
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingNews, setEditingNews] = useState<Noticia | null>(null);
   const [selectedNewsDetail, setSelectedNewsDetail] = useState<Noticia | null>(null);
@@ -55,6 +57,7 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ news, role, onSaveNews
   const randomQuote = motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)];
 
   const handleOpenForm = (item?: Noticia) => {
+    if (!canPublish) return;
     if (item) {
       setEditingNews(item);
       setType((item.tipo as any) || 'noticia');
@@ -100,6 +103,7 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ news, role, onSaveNews
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!canPublish) return;
     if (!title.trim() || !description.trim()) {
       alert('Por favor completa el título y la descripción');
       return;
@@ -130,6 +134,7 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ news, role, onSaveNews
   };
 
   const handleDeletePrompt = (id: string) => {
+    if (!canPublish) return;
     setConfirmDeleteId(id);
   };
 
@@ -144,7 +149,7 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ news, role, onSaveNews
   return (
     <div className="space-y-6 pb-24">
       {/* Hero Banner */}
-      <div className="bg-white dark:bg-[#121212] border border-slate-200 dark:border-[#1F1F1F] rounded-3xl p-6 sm:p-8 text-slate-900 dark:text-white shadow-xl dark:shadow-2xl relative overflow-hidden transition-all">
+      <div className="bg-white dark:bg-[#121212] border border-slate-200 dark:border-[#1F1F1F] rounded-2xl sm:rounded-3xl p-4 sm:p-8 text-slate-900 dark:text-white shadow-xl dark:shadow-2xl relative overflow-hidden transition-all">
         <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative z-10 max-w-xl">
@@ -154,19 +159,26 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ news, role, onSaveNews
               Tablón Informativo
             </span>
           </div>
-          <h2 className="text-2xl sm:text-3xl font-black tracking-tight mb-1 text-slate-900 dark:text-white">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-black tracking-tight mb-1 text-slate-900 dark:text-white">
             {randomQuote.quote}
           </h2>
-          <p className="text-sm text-slate-600 dark:text-gray-400 mb-4">{randomQuote.sub}</p>
+          <p className="text-xs sm:text-sm text-slate-600 dark:text-gray-400 mb-4">{randomQuote.sub}</p>
 
-          <button
-            type="button"
-            onClick={() => handleOpenForm()}
-            className="px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-lg shadow-blue-600/20 transition-all flex items-center gap-2 text-xs sm:text-sm active:scale-95"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Publicar Nueva Noticia / Comunicado</span>
-          </button>
+          {canPublish ? (
+            <button
+              type="button"
+              onClick={() => handleOpenForm()}
+              className="w-full sm:w-auto px-4 py-2.5 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-2xl shadow-lg shadow-blue-600/20 transition-all flex items-center justify-center gap-2 text-xs sm:text-sm active:scale-95"
+            >
+              <Plus className="w-4 h-4 shrink-0" />
+              <span>Publicar Nueva Noticia / Comunicado</span>
+            </button>
+          ) : (
+            <p className="text-xs text-slate-500 dark:text-gray-400 bg-slate-50 dark:bg-[#0A0A0A] border border-slate-200 dark:border-[#1F1F1F] rounded-xl px-3 py-2 inline-flex items-center gap-2">
+              <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+              Ingresa con PIN autorizado para publicar comunicados.
+            </p>
+          )}
         </div>
       </div>
 
@@ -204,8 +216,8 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ news, role, onSaveNews
       )}
 
       {/* Admin News Form Modal / Accordion */}
-      {isFormOpen && (
-        <div className="bg-white dark:bg-[#121212] border border-slate-200 dark:border-[#1F1F1F] rounded-3xl p-5 sm:p-6 shadow-xl dark:shadow-2xl animate-in fade-in slide-in-from-top-4 duration-300">
+      {isFormOpen && canPublish && (
+        <div className="bg-white dark:bg-[#121212] border border-slate-200 dark:border-[#1F1F1F] rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-xl dark:shadow-2xl animate-in fade-in slide-in-from-top-4 duration-300">
           <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-[#1F1F1F] mb-4">
             <h3 className="text-base font-extrabold text-slate-900 dark:text-white flex items-center gap-2">
               <Newspaper className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
@@ -341,10 +353,10 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ news, role, onSaveNews
 
       {/* Detailed News Modal */}
       {selectedNewsDetail && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 dark:bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200">
-          <div className="bg-white dark:bg-[#121212] border border-slate-200 dark:border-[#1F1F1F] rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-2xl animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-50 bg-slate-900/60 dark:bg-black/80 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-3 md:p-6 animate-in fade-in duration-200">
+          <div className="bg-white dark:bg-[#121212] border border-slate-200 dark:border-[#1F1F1F] rounded-t-3xl sm:rounded-3xl max-w-2xl w-full max-h-[95dvh] sm:max-h-[90dvh] modal-landscape-fit overflow-hidden flex flex-col shadow-2xl animate-in slide-in-from-bottom-4 sm:zoom-in-95 duration-200">
             {/* Modal Header */}
-            <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-[#1F1F1F] flex items-center justify-between bg-slate-50/50 dark:bg-[#161616]/50 shrink-0">
+            <div className="p-3 sm:p-5 border-b border-slate-200 dark:border-[#1F1F1F] flex flex-wrap items-center justify-between gap-2 bg-slate-50/50 dark:bg-[#161616]/50 shrink-0">
               <div className="flex items-center gap-2 min-w-0 pr-2">
                 <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-blue-500/10 text-blue-700 dark:text-sky-400 border border-blue-500/20">
                   {selectedNewsDetail.tipo || 'Noticia'}
@@ -353,28 +365,32 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ news, role, onSaveNews
                   Detalle de Publicación
                 </span>
               </div>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    handleOpenForm(selectedNewsDetail);
-                    setSelectedNewsDetail(null);
-                  }}
-                  className="px-3 py-1.5 rounded-xl bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 text-xs font-extrabold flex items-center gap-1 hover:bg-emerald-500/20 transition-all"
-                  title="Editar esta publicación"
-                >
-                  <Edit3 className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">Editar</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleDeletePrompt(selectedNewsDetail.id)}
-                  className="px-3 py-1.5 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 text-xs font-extrabold flex items-center gap-1 hover:bg-rose-500/20 transition-all"
-                  title="Eliminar esta publicación"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">Eliminar</span>
-                </button>
+              <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap justify-end">
+                {canPublish && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        handleOpenForm(selectedNewsDetail);
+                        setSelectedNewsDetail(null);
+                      }}
+                      className="px-2.5 sm:px-3 py-1.5 rounded-xl bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 text-xs font-extrabold flex items-center gap-1 hover:bg-emerald-500/20 transition-all"
+                      title="Editar esta publicación"
+                    >
+                      <Edit3 className="w-3.5 h-3.5" />
+                      <span className="hidden sm:inline">Editar</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDeletePrompt(selectedNewsDetail.id)}
+                      className="px-2.5 sm:px-3 py-1.5 rounded-xl bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 text-xs font-extrabold flex items-center gap-1 hover:bg-rose-500/20 transition-all"
+                      title="Eliminar esta publicación"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span className="hidden sm:inline">Eliminar</span>
+                    </button>
+                  </>
+                )}
                 <button
                   type="button"
                   onClick={() => setSelectedNewsDetail(null)}
@@ -519,7 +535,9 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ news, role, onSaveNews
               <p className="text-xs text-slate-500 dark:text-gray-400 mt-1 max-w-xs mx-auto">
                 {role === 'ADMIN'
                   ? 'Publica la primera noticia para informar a la comunidad.'
-                  : 'Pronto habrá novedades e informativos disponibles.'}
+                  : role === 'PUBLISHER'
+                    ? 'Puedes publicar la primera noticia para informar a la comunidad.'
+                    : 'Pronto habrá novedades e informativos disponibles.'}
               </p>
             </div>
           );
@@ -543,7 +561,7 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ news, role, onSaveNews
         }
 
         return (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
             {filteredNews.map((item) => {
               const badgeMap = {
                 noticia: { label: 'Noticia', color: 'bg-blue-500/10 text-blue-700 dark:text-sky-400 border-blue-500/20' },
@@ -626,27 +644,29 @@ export const NewsSection: React.FC<NewsSectionProps> = ({ news, role, onSaveNews
                       {item.creadoPor || 'Sistema'}
                     </span>
 
-                    {/* Publication Edit & Delete Actions */}
-                    <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
-                      <button
-                        type="button"
-                        onClick={() => handleOpenForm(item)}
-                        title="Editar publicación"
-                        className="p-1.5 rounded-lg text-blue-600 dark:text-sky-400 hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors flex items-center gap-1 font-extrabold text-[11px]"
-                      >
-                        <Edit3 className="w-3.5 h-3.5" />
-                        <span className="hidden sm:inline">Editar</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => handleDeletePrompt(item.id)}
-                        title="Eliminar publicación"
-                        className="p-1.5 rounded-lg text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors flex items-center gap-1 font-extrabold text-[11px]"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                        <span className="hidden sm:inline">Eliminar</span>
-                      </button>
-                    </div>
+                    {/* Publication Edit & Delete Actions (Admin only) */}
+                    {canPublish && (
+                      <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+                        <button
+                          type="button"
+                          onClick={() => handleOpenForm(item)}
+                          title="Editar publicación"
+                          className="p-1.5 rounded-lg text-blue-600 dark:text-sky-400 hover:bg-blue-50 dark:hover:bg-blue-950/40 transition-colors flex items-center gap-1 font-extrabold text-[11px]"
+                        >
+                          <Edit3 className="w-3.5 h-3.5" />
+                          <span className="hidden sm:inline">Editar</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDeletePrompt(item.id)}
+                          title="Eliminar publicación"
+                          className="p-1.5 rounded-lg text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors flex items-center gap-1 font-extrabold text-[11px]"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          <span className="hidden sm:inline">Eliminar</span>
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

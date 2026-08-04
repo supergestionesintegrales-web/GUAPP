@@ -64,7 +64,17 @@ function _formatHeader(sheet, numCols) {
 }
 
 function validateAdminPIN(pin) {
+  return pin === 'SIG900.1';
+}
+
+function validatePublisherPIN(pin) {
   return pin === '9001';
+}
+
+function resolveAccessRole(pin) {
+  if (validateAdminPIN(pin)) return 'ADMIN';
+  if (validatePublisherPIN(pin)) return 'PUBLISHER';
+  return null;
 }
 
 function getDashboardModules() {

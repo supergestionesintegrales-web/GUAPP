@@ -27,7 +27,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
   onLogout,
 }) => {
   return (
-    <header className="fixed top-0 left-0 right-0 z-40 bg-white/90 dark:bg-[#121212]/90 backdrop-blur-md border-b border-slate-200 dark:border-[#1F1F1F] px-3 sm:px-5 py-2.5 shadow-sm dark:shadow-md transition-all">
+    <header className="fixed top-0 left-0 right-0 z-40 bg-white/90 dark:bg-[#121212]/90 backdrop-blur-md border-b border-slate-200 dark:border-[#1F1F1F] px-2 sm:px-5 py-2 pt-[max(0.5rem,env(safe-area-inset-top))] shadow-sm dark:shadow-md transition-all safe-top">
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-2">
         {/* Logo and Title */}
         <div className="flex items-center gap-3">
@@ -42,6 +42,10 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
               {role === 'ADMIN' ? (
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase bg-rose-500/10 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400 border border-rose-500/20 dark:border-rose-500/30">
                   Admin
+                </span>
+              ) : role === 'PUBLISHER' ? (
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 dark:border-emerald-500/30">
+                  Público
                 </span>
               ) : (
                 <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-emerald-500/10 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/20 dark:border-emerald-500/30">

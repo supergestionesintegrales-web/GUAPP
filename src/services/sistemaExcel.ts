@@ -24,13 +24,15 @@ const HEADERS = {
 
 export interface SistemaConfig {
   adminPin: string;
+  publisherPin: string;
   nombreApp: string;
   subtituloApp: string;
   lemaApp: string;
 }
 
 const DEFAULT_CONFIG: SistemaConfig = {
-  adminPin: "9001",
+  adminPin: "SIG900.1",
+  publisherPin: "9001",
   nombreApp: "GUAPP",
   subtituloApp: "Tu Guajira App",
   lemaApp: "Simpre cerca de ti",
@@ -60,6 +62,7 @@ function ensureWorkbook(filePath: string): XLSX.WorkBook {
     XLSX.utils.aoa_to_sheet([
       Array.from(HEADERS.CONFIGURACION),
       ["admin_pin", DEFAULT_CONFIG.adminPin, "PIN de acceso administrador"],
+      ["publisher_pin", DEFAULT_CONFIG.publisherPin, "PIN de publicación de noticias y comunicados"],
       ["nombre_app", DEFAULT_CONFIG.nombreApp, "Nombre principal de la aplicación"],
       ["subtitulo_app", DEFAULT_CONFIG.subtituloApp, "Subtítulo del portal"],
       ["lema_app", DEFAULT_CONFIG.lemaApp, "Lema institucional"],
@@ -98,15 +101,61 @@ export function getSistemaConfig(filePath?: string): SistemaConfig {
 
   return {
     adminPin: map.get("admin_pin") || DEFAULT_CONFIG.adminPin,
+    publisherPin: map.get("publisher_pin") || DEFAULT_CONFIG.publisherPin,
     nombreApp: map.get("nombre_app") || DEFAULT_CONFIG.nombreApp,
     subtituloApp: map.get("subtitulo_app") || DEFAULT_CONFIG.subtituloApp,
     lemaApp: map.get("lema_app") || DEFAULT_CONFIG.lemaApp,
   };
 }
 
+export function ensureConfigPins(filePath?: string): SistemaConfig {
+  const resolvedPath = resolveSistemaPath(filePath);
+  const workbook = ensureWorkbook(resolvedPath);
+  const rows = sheetToRows<[string, string, string?]>(workbook, SHEETS.CONFIGURACION);
+  const configMap = new Map(rows.map(([key, value, desc]) => [String(key).trim(), { value: String(value).trim(), desc }]));
+
+  let changed = false;
+
+  const upsert = (key: string, value: string, desc: string) => {
+    const current = configMap.get(key);
+    if (!current || current.value !== value) {
+      configMap.set(key, { value, desc });
+      changed = true;
+    }
+  };
+
+  upsert("admin_pin", DEFAULT_CONFIG.adminPin, "PIN de acceso administrador");
+  upsert("publisher_pin", DEFAULT_CONFIG.publisherPin, "PIN de publicación de noticias y comunicados");
+
+  if (changed) {
+    const configRows = Array.from(configMap.entries()).map(([key, { value, desc }]) => [key, value, desc || ""]);
+    setSheetData(workbook, SHEETS.CONFIGURACION, HEADERS.CONFIGURACION, configRows);
+    writeWorkbook(resolvedPath, workbook);
+  }
+
+  return getSistemaConfig(resolvedPath);
+}
+
 export function validateAdminPin(pin: string, filePath?: string): boolean {
   const config = getSistemaConfig(filePath);
   return pin === config.adminPin;
+}
+
+export function validatePublisherPin(pin: string, filePath?: string): boolean {
+  const config = getSistemaConfig(filePath);
+  return pin === config.publisherPin;
+}
+
+export type AccessRole = "ADMIN" | "PUBLISHER";
+
+export function resolveAccessRole(pin: string, filePath?: string): AccessRole | null {
+  if (validateAdminPin(pin, filePath)) return "ADMIN";
+  if (validatePublisherPin(pin, filePath)) return "PUBLISHER";
+  return null;
+}
+
+export function validatePublishPin(pin: string, filePath?: string): boolean {
+  return resolveAccessRole(pin, filePath) !== null;
 }
 
 export function getDashboardModulesFromExcel(filePath?: string): Modulo[] {

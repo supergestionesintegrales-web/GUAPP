@@ -11,6 +11,7 @@ import { StructureConfigModal } from './components/StructureConfigModal';
 
 export default function App() {
   const [role, setRole] = useState<UserRole>(null);
+  const [adminPin, setAdminPin] = useState<string | null>(null);
   const [loginError, setLoginError] = useState<string | null>(null);
   const [isLoginLoading, setIsLoginLoading] = useState(false);
 
@@ -99,9 +100,14 @@ export default function App() {
         });
         const data = await res.json();
 
-        if (data.isValid) {
+        if (data.isValid && data.role === 'ADMIN') {
           setRole('ADMIN');
+          setAdminPin(pin?.trim() || null);
           showToast('🔑 Modo Administrador activado');
+        } else if (data.isValid && data.role === 'PUBLISHER') {
+          setRole('PUBLISHER');
+          setAdminPin(pin?.trim() || null);
+          showToast('📢 Acceso de publicación activado');
         } else {
           setLoginError('PIN incorrecto o no autorizado.');
         }
@@ -118,6 +124,7 @@ export default function App() {
 
   const handleLogout = () => {
     setRole(null);
+    setAdminPin(null);
     setOpenTabs({});
     setActiveTabId(null);
     setSelectedSubmoduleForViewer(null);
@@ -175,11 +182,15 @@ export default function App() {
 
   // Save Modules
   const handleSaveModules = async (newModules: Modulo[]) => {
+    if (role !== 'ADMIN' || !adminPin) {
+      showToast('⚠️ Solo administradores pueden modificar la estructura');
+      return;
+    }
     try {
       const res = await fetch('/api/gas/saveDashboardModules', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ modules: newModules })
+        body: JSON.stringify({ modules: newModules, pin: adminPin })
       });
       if (res.ok) {
         setModules(newModules);
@@ -221,7 +232,13 @@ export default function App() {
   };
 
   // Save News
+  const canPublishNews = role === 'ADMIN' || role === 'PUBLISHER';
+
   const handleSaveNews = async (newsData: Partial<Noticia>, fileBase64?: string) => {
+    if (!canPublishNews || !adminPin) {
+      showToast('⚠️ No tienes permiso para publicar noticias o comunicados');
+      return;
+    }
     try {
       let finalImageUrl = newsData.imagenURL ?? '';
 
@@ -231,7 +248,8 @@ export default function App() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             base64: fileBase64,
-            newsId: newsData.id || `news_${Date.now()}`
+            newsId: newsData.id || `news_${Date.now()}`,
+            pin: adminPin
           })
         });
         if (uploadRes.ok) {
@@ -257,7 +275,7 @@ export default function App() {
           descripcion: newsData.descripcion || '',
           fecha: newsData.fecha || new Date().toISOString().split('T')[0],
           imagenURL: finalImageUrl,
-          creadoPor: role === 'ADMIN' ? 'Administración' : 'Usuario',
+          creadoPor: role === 'ADMIN' ? 'Administración' : 'Publicaciones',
           fechaCreacion: new Date().toISOString()
         };
         updatedNewsList.unshift(newNoticia);
@@ -266,7 +284,7 @@ export default function App() {
       const saveRes = await fetch('/api/gas/saveNews', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ noticias: updatedNewsList, usuarioActual: role })
+        body: JSON.stringify({ noticias: updatedNewsList, usuarioActual: role, pin: adminPin })
       });
 
       if (saveRes.ok) {
@@ -280,12 +298,16 @@ export default function App() {
 
   // Delete News
   const handleDeleteNews = async (id: string) => {
+    if (!canPublishNews || !adminPin) {
+      showToast('⚠️ No tienes permiso para eliminar publicaciones');
+      return;
+    }
     const nextNews = news.filter((n) => n.id !== id);
     try {
       const res = await fetch('/api/gas/saveNews', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ noticias: nextNews, usuarioActual: role })
+        body: JSON.stringify({ noticias: nextNews, usuarioActual: role, pin: adminPin })
       });
       if (res.ok) {
         setNews(nextNews);
@@ -312,7 +334,7 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen min-h-[100dvh] bg-slate-50 dark:bg-[#0A0A0A] text-slate-800 dark:text-gray-200 flex flex-col font-sans transition-colors duration-200 pb-16">
+    <div className="min-h-screen min-h-[100dvh] bg-slate-50 dark:bg-[#0A0A0A] text-slate-800 dark:text-gray-200 flex flex-col font-sans transition-colors duration-200 pb-16 safe-bottom">
       {/* Toast Notification */}
       {toastMsg && (
         <div className="fixed top-16 left-1/2 -translate-x-1/2 z-50 bg-white dark:bg-[#121212] text-slate-900 dark:text-gray-100 font-bold text-xs px-4 py-2.5 rounded-full shadow-2xl flex items-center gap-2 border border-slate-200 dark:border-[#1F1F1F] animate-in fade-in slide-in-from-top-2 duration-200">
@@ -335,7 +357,7 @@ export default function App() {
       />
 
       {/* App Body Content */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 pt-[4.5rem] sm:pt-20">
+      <main className="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-6 pt-[4.25rem] sm:pt-20 px-[max(0.75rem,env(safe-area-inset-left))] sm:px-6">
         {activeNavTab === 'inicio' ? (
           <DashboardModules
             modules={modules}
@@ -385,7 +407,7 @@ export default function App() {
       )}
 
       {/* Bottom Nav Bar */}
-      <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#121212]/95 backdrop-blur-md border-t border-slate-200 dark:border-[#1F1F1F] px-4 py-2 flex items-center justify-around shadow-xl dark:shadow-2xl transition-all">
+      <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-[#121212]/95 backdrop-blur-md border-t border-slate-200 dark:border-[#1F1F1F] px-2 sm:px-4 py-2 pb-[max(0.5rem,env(safe-area-inset-bottom))] flex items-center justify-around shadow-xl dark:shadow-2xl transition-all safe-bottom">
         <button
           type="button"
           onClick={() => {

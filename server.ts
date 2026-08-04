@@ -12,6 +12,9 @@ import {
   saveNewsToExcel,
   seedSistemaExcelIfEmpty,
   validateAdminPin,
+  validatePublishPin,
+  resolveAccessRole,
+  ensureConfigPins,
 } from "./src/services/sistemaExcel";
 import {
   ensureNewsImagesDir,
@@ -174,6 +177,31 @@ const defaultNewsData: Noticia[] = [
 ];
 
 seedSistemaExcelIfEmpty(defaultModulesData, defaultNewsData);
+ensureConfigPins();
+
+function requireAdminPin(req: express.Request, res: express.Response): boolean {
+  const pin = String(req.body?.pin || "");
+  if (!validateAdminPin(pin)) {
+    res.status(403).json({
+      success: false,
+      error: "Acceso denegado. Se requiere PIN de administrador.",
+    });
+    return false;
+  }
+  return true;
+}
+
+function requirePublishPin(req: express.Request, res: express.Response): boolean {
+  const pin = String(req.body?.pin || "");
+  if (!validatePublishPin(pin)) {
+    res.status(403).json({
+      success: false,
+      error: "Acceso denegado. Se requiere PIN autorizado para publicar.",
+    });
+    return false;
+  }
+  return true;
+}
 
 async function startServer() {
   const app = express();
@@ -194,9 +222,12 @@ async function startServer() {
   });
 
   app.post("/api/gas/validateAdminPIN", (req, res) => {
-    const { pin } = req.body;
-    const isValid = validateAdminPin(String(pin || ""));
-    res.json({ isValid });
+    const pin = String(req.body?.pin || "");
+    const role = resolveAccessRole(pin);
+    res.json({
+      isValid: role !== null,
+      role,
+    });
   });
 
   app.get("/api/gas/getDashboardModules", (_req, res) => {
@@ -204,6 +235,7 @@ async function startServer() {
   });
 
   app.post("/api/gas/saveDashboardModules", (req, res) => {
+    if (!requireAdminPin(req, res)) return;
     try {
       const { modules } = req.body;
       if (Array.isArray(modules)) {
@@ -226,6 +258,7 @@ async function startServer() {
   });
 
   app.post("/api/gas/saveNews", (req, res) => {
+    if (!requirePublishPin(req, res)) return;
     try {
       const { noticias, usuarioActual } = req.body;
       if (Array.isArray(noticias)) {
@@ -246,6 +279,7 @@ async function startServer() {
   });
 
   app.post("/api/gas/uploadNewsImage", (req, res) => {
+    if (!requirePublishPin(req, res)) return;
     try {
       const { base64, newsId } = req.body;
       if (!base64) {
