@@ -1,0 +1,42 @@
+[
+  {
+    "id": "news_sasra",
+    "tipo": "noticia",
+    "titulo": "Sistema SASRA: Guía Completa de Atención, Solicitudes y Acompañamiento",
+    "descripcion": "El Sistema SASRA (Sistema de Atención, Solicitudes, Respuestas y Acompañamiento) es la plataforma oficial diseñada para canalizar y resolver todos los trámites, requerimientos y consultas institucionales con máxima transparencia y velocidad.\n\n📌 ¿Qué puedes realizar en SASRA?\n• Radicación digital centralizada con número de radicado único e inalterable.\n• Seguimiento en tiempo real del estado de tu trámite y funcionario asignado.\n• Recepción de notificaciones automáticas por correo electrónico e integración con GUAPP.\n• Acompañamiento guiado paso a paso para trámites de ciudadanos y dependencias.\n• Tiempos de respuesta optimizados bajo estrictos Acuerdos de Nivel de Servicio (SLA).\n\n💡 ¿Cómo utilizarlo?\nPuedes radicar tus solicitudes directamente ingresando a la sección de Trámites en GUAPP o accediendo al submódulo SASRA dentro de Servicios Ciudadanos.",
+    "fecha": "2026-08-04",
+    "imagenURL": "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=800&auto=format&fit=crop",
+    "creadoPor": "Dirección de Calidad y SASRA",
+    "fechaCreacion": "2026-08-04T23:31:03.469Z"
+  },
+  {
+    "id": "news_1",
+    "tipo": "noticia",
+    "titulo": "Bienvenida al Sistema GUAPP",
+    "descripcion": "Iniciamos la puesta en marcha del nuevo portal institucional integrado para agilizar trámites y servicios institucionales de manera segura y eficiente.",
+    "fecha": "2026-08-04",
+    "imagenURL": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=800&auto=format&fit=crop",
+    "creadoPor": "Administración",
+    "fechaCreacion": "2026-08-04T23:31:03.469Z"
+  },
+  {
+    "id": "news_2",
+    "tipo": "novedad",
+    "titulo": "Sincronización en Tiempo Real activada",
+    "descripcion": "Ahora todos los módulos, submódulos y enlaces se actualizan instantáneamente en la base de datos central sin requerir recargas de página.",
+    "fecha": "2026-08-04",
+    "imagenURL": "https://images.unsplash.com/photo-1551836022-d5d88e9218df?q=80&w=800&auto=format&fit=crop",
+    "creadoPor": "Sistemas",
+    "fechaCreacion": "2026-08-04T23:31:03.469Z"
+  },
+  {
+    "id": "news_3",
+    "tipo": "evento",
+    "titulo": "Taller de Inducción y Capacitación SIG & SASRA",
+    "descripcion": "Próxima sesión técnica virtual este viernes a las 10:00 AM para la gestión de nuevos trámites y operación de la plataforma SASRA.",
+    "fecha": "2026-08-15",
+    "imagenURL": "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?q=80&w=800&auto=format&fit=crop",
+    "creadoPor": "Recursos Humanos",
+    "fechaCreacion": "2026-08-04T23:31:03.469Z"
+  }
+]
